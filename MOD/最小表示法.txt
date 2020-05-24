@@ -1,0 +1,15 @@
+最小表示法：将一串带有循环节的字符串，用其最小字典序的同构字符串表示出来。
+int getMINIREPRESENT(){
+	int i=0,j=1,k=0;
+	while (i<len&&j<len&&k<len){
+		int tmp=s[(i+k)%len]-s[(j+k)%len];
+		if (tmp==0)k++;
+		else{
+			if (tmp>0)i+=k+1;
+			else j+=k+1;
+			if (i==j)++j;
+			k=0;
+		}
+	}
+	return std::min(i,j);
+}

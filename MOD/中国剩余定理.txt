@@ -1,0 +1,22 @@
+ll exgcd(ll a,ll b,ll &x,ll &y) {
+	if(!b) {//解方程求 x,y a*x+b*y = gcd(a,b)
+		x=1,y=0;
+		return a;
+	}
+	ll re=exgcd(b,a%b,x,y),tmp=x;
+	x=y,y=tmp-(a/b)*y;
+	return re;
+}
+ll m[maxn],a[maxn];
+ll work() {
+	ll M=m[1],A=a[1],t,d,x,y;
+	int i;
+	for(i=2; i<=n; i++) {
+		d=exgcd(M,m[i],x,y);//解方程
+		if((a[i]-A)%d)return -1;//无解
+		x*=(a[i]-A)/d,t=m[i]/d,x=(x%t+t)%t;//求x
+		A=M*x+A,M=M/d*m[i],A%=M;//日常膜一膜 防爆
+	}
+	A=(A%M+M)%M;
+	return A;
+}

@@ -1,0 +1,4 @@
+inline ll ksc(ll x,ll y,ll mod)
+{
+    return (x*y-(ll)((long double)x/mod*y)*mod+mod)%mod;     
+}

@@ -1,0 +1,90 @@
+目前遇到的题型有
+
+路径和等于或小于等于的点对（路径条数）。
+路径和为某个数的倍数。
+路径和为且路径的边数最少。
+路径和后为某个值。
+//--------------------------------------
+#include<bits/stdc++.h>
+#define N 20000
+int n,k,dd,tou[N],dis[N],cnt,ans,root,wt[N],tsiz,siz[N];
+struct aa{
+	int p,next,len;
+}da[N*2];
+bool vis[N];
+void add(int x,int y,int len){
+	da[++dd].p=y;da[dd].next=tou[x];tou[x]=dd;da[dd].len=len;
+}
+void Dfs(int u,int len,int fa){
+	dis[++cnt]=len;
+	for (int i=tou[u];i;i=da[i].next){
+		int v=da[i].p;
+		if (v==fa||vis[v])continue;
+		Dfs(v,len+da[i].len,u);
+	}
+}
+void getroot(int u,int fa){
+	siz[u]=1;wt[u]=0;
+	for (int i=tou[u];i;i=da[i].next){
+		int v=da[i].p;
+		if (!vis[v]&&fa!=v){
+			getroot(v,u);
+			siz[u]+=siz[v];
+			wt[u]=std::max(wt[u],siz[v]);
+		}
+	}
+	wt[u]=std::max(wt[u],tsiz-siz[u]);
+	if (wt[root]>wt[u])root=u;
+}
+int calc(int u,int len){
+	cnt=0;Dfs(u,len,0);
+	int l=1;int r=cnt;
+	std::sort(dis+1,dis+cnt+1);
+	int sum=0;
+	for(;;l++){
+		while (r&&dis[l]+dis[r]>k)--r;
+		if (r<l)break;
+		sum+=r-l+1;
+	}
+	return sum;
+}
+void dfs(int u){
+	cnt=0;
+	ans+=calc(u,0);vis[u]=1;
+	for (int i=tou[u];i;i=da[i].next){
+		int v=da[i].p;
+		if (!vis[v]){
+			cnt=0;
+			ans-=calc(v,da[i].len);
+			tsiz=siz[v];
+			root=0;
+			getroot(v,0);
+			dfs(root);
+		}
+	}
+}
+int main(){
+	#ifndef ONLINE_JUDGE
+	freopen("test.in","r",stdin);
+	freopen("test.out","w",stdout);
+	#endif
+	while (scanf("%d%d",&n,&k)!=EOF){
+		if (n==0&&k==0)break;
+		dd=0;
+		memset(tou,0,sizeof(tou));
+		memset(vis,0,sizeof(vis));
+		for (int i=1;i<n;i++){
+			int x,y,l;
+			scanf("%d%d%d",&x,&y,&l);
+			add(x,y,l);
+			add(y,x,l);
+		}
+		wt[0]=0x7f7f7f7f;
+		tsiz=n;
+		root=0;
+		getroot(1,0);
+		dfs(root);
+		printf("%d\n",ans-n);
+	}
+	return 0;
+}

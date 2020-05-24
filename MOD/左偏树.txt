@@ -1,0 +1,94 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int nmax = 1e6 + 7;
+const int INF = 0x3f3f3f3f;
+struct node {
+    int val, lc, rc, dis, fa;
+}tree[nmax];
+int tot = 0;
+int n, m;
+void init(int x) {
+    for (int i = 0; i <= x; ++i) {
+        tree[i].lc = tree[i].rc = tree[i].dis = 0;
+        tree[i].fa = i;
+    }
+}
+
+int merge(int x, int y) {
+    if (x == 0) return y;
+    if (y == 0) return x;
+    if (tree[x].val > tree[y].val || (tree[x].val == tree[y].val && x > y) )
+        swap(x, y);
+    tree[x].rc = merge(tree[x].rc, y);
+    tree[tree[x].rc].fa = x;
+    if (tree[tree[x].rc].dis > tree[tree[x].lc].dis)
+        swap(tree[x].rc, tree[x].lc);
+    tree[x].dis = tree[x].rc == 0 ? 0 : tree[tree[x].rc].dis + 1;
+    return x;
+}
+int findset(int x) {
+    while (tree[x].fa != x) {
+        x = tree[x].fa;
+    }
+    return x;
+}
+int add(int val, int x) {
+    tree[tot].lc = tree[tot].rc = tree[tot].dis = 0;
+    tree[tot++].val = val;
+    return merge(tot - 1, x);
+}
+int del(int x) {
+    int l = tree[x].lc, r = tree[x].rc;
+    tree[x].fa = tree[x].lc = tree[x].rc = tree[x].dis = 0;
+    tree[x].val = -INF;
+    tree[l].fa = l, tree[r].fa = r;
+    return merge(l, r);
+}
+
+int build() {
+    queue<int> q;
+    for (int i = 1; i <= n; ++i)
+        q.push(i);
+    while (!q.empty()) {
+        if (q.size() == 1) break;
+        else {
+            int x = q.front(); q.pop();
+            int y = q.front(); q.pop();
+            q.push(merge(x, y));
+        }
+    }
+    int finally = q.front(); q.pop();
+    return finally;
+}
+
+int main() {
+//    freopen("in.txt", "r", stdin);
+    scanf("%d %d", &n, &m);
+    init(n);
+    for (int i = 1; i <= n; ++i) {
+        scanf("%d", &tree[i].val);
+    }
+    int op, a, b;
+    for (int i = 1; i <= m; ++i) {
+        scanf("%d", &op);
+        if (op == 1) {
+            scanf("%d %d", &a, &b);
+            int xx = findset(a), yy = findset(b);
+            if (tree[a].val == INF || tree[b].val == INF || xx == yy) {
+                continue;
+            } else {
+                merge(xx, yy);
+            }
+        } else {
+            scanf("%d", &a);
+            if (tree[a].val == -INF) {
+                printf("-1\n");
+            } else {
+                int tmp = findset(a);
+                printf("%d\n", tree[tmp].val);
+                del(tmp);
+            }
+        }
+    }
+    return 0;
+}

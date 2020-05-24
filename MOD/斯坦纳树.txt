@@ -1,0 +1,91 @@
+//---------------------------…≠¡÷∞Ê
+#include<iostream>
+#include<cstdio>
+#include<cmath>
+#include<cstring>
+#include<queue>
+#include<algorithm>
+#include<stack>
+#define N 1005
+#define sti 1<<11
+#define INF 0x2f2f2f2f
+std::queue <int>q;
+int T,dd,tou[N],sta[N],F[N][sti],dp[sti],k,n,m;
+bool inq[N];
+struct aa{
+    int p,next,len;
+}da[N*2];
+void add(int x,int y,int len){
+    da[++dd].p=y;da[dd].next=tou[x];tou[x]=dd;da[dd].len=len;
+}
+void spfa(int sto){
+    while (!q.empty()){
+        int u=q.front();
+        inq[u]=false;
+        q.pop();
+        for (int i=tou[u];i;i=da[i].next){
+            int v=da[i].p;
+            if (F[v][sto]>F[u][sto]+da[i].len){
+                F[v][sto]=F[u][sto]+da[i].len;
+                if (!inq[v]){
+                    inq[v]=1;
+                    q.push(v);
+                }
+            }
+        }
+    }
+}
+bool pd(int st){
+    int num=0;
+    for (int i=1;i<=k;i++) if (st&(1<<(i-1)))++num;
+    for (int i=k+1;i<=2*k;i++) if (st&(1<<(i-1)))--num;
+    if (num==0)return true;
+    else return false;
+}
+int main(){
+    #ifndef ONLINE_JUDGE
+    freopen("hdu4085.in","r",stdin);
+    freopen("hdu4085.out","w",stdout);
+    #endif 
+    scanf("%d",&T);
+    for (int tt=1;tt<=T;tt++){
+        memset(F,0x2f2f2f2f,sizeof(F));
+        memset(dp,0x2f2f2f2f,sizeof(dp));
+        memset(tou,0,sizeof(tou));
+        memset(sta,0,sizeof(sta));
+        scanf("%d%d%d",&n,&m,&k);dd=0;
+        for (int i=1;i<=m;i++){
+            int u,v,vi;
+            scanf("%d%d%d",&u,&v,&vi);
+            add(u,v,vi);add(v,u,vi);
+        }
+        for (int i=1;i<=k;i++){
+            sta[n-i+1]=1<<(i-1);
+            F[n-i+1][sta[n-i+1]]=0; 
+        }
+        for (int i=k+1;i<=2*k;i++){
+            sta[i-k]=1<<(i-1);
+            F[i-k][sta[i-k]]=0;
+        }
+        int sta=(1<<(2*k))-1;
+        for (int st=1;st<=sta;st++){
+            int min=INF;
+            for (int i=1;i<=n;i++){
+                for (int s=st&(st-1);s;s=st&(s-1))F[i][st]=std::min(F[i][st],F[i][st-s]+F[i][s]);
+                if (F[i][st]!=INF){
+                    q.push(i),inq[i]=1;
+                    min=std::min(min,F[i][st]);
+                }
+            }
+            dp[st]=min;
+            spfa(st);
+            if (pd(st))for (int s=st&(st-1);s;s=st&(s-1))dp[st]=std::min(dp[st],dp[st-s]+dp[s]);
+            else dp[st]=INF;
+        }
+        int ans=dp[sta];
+        //for (int i=1;i<=n;i++)ans=std::min(ans,F[i][sta]);
+        if (ans<INF)printf("%d\n",ans);
+        else printf("No solution\n");
+    }
+    return 0;
+}

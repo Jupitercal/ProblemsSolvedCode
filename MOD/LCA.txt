@@ -1,0 +1,13 @@
+int LCA(int u,int v){
+if(deep[u]< deep[v]) std::swap(u,v);
+int delta = deep[u] - deep[v];
+for(int i = 18;i>= 0;--i){
+if((delta >> i) & 1) u = fa[u][i];
+}
+for(int i = 18;i>= 0;--i){
+if(fa[u][i] != fa[v][i]) u = fa[u][i],v = fa[v][i];
+}
+if(u == v) return u;
+return fa[u][0];
+}
+

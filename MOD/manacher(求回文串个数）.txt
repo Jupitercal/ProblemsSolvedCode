@@ -1,0 +1,45 @@
+#include<bits/stdc++.h>
+#define N 350005
+typedef long long LL;
+int len[N*2],num[30];
+char s[N*2],sc[N];
+int main(){
+	#ifndef ONLINE_JUDGE
+	freopen("test.in","r",stdin);
+	freopen("test.out","w",stdout);
+	#endif
+	scanf("%s",sc);
+	int slen=strlen(sc);
+	s[0]='#';
+	int j=1;
+	for (int i=0;i<slen;i++){
+		s[j++]=sc[i];
+		s[j++]='#';
+	}
+	s[j]='\0';
+	//printf("%s\n",s);
+	int n=slen*2+1;
+	memset(len,0,sizeof len);
+	int mx=0,p=0;
+	LL cnt=0;
+	LL ans=0;
+	for (int i=0;i<=26;i++)num[i]=-0x3f3f3f3f;
+	for(int i=1;i<n;i++){
+		if (s[i]<='z'&&s[i]>='a'){
+			num[s[i]-'a']=i;
+		}
+	    if(mx>i)len[i]=std::min(mx-i,len[2*p-i]);
+	    else len[i]=1;
+	    while(i-len[i]>=0&&i+len[i]<=n&&s[i-len[i]]==s[i+len[i]])len[i]++;
+	    if(len[i]+i>mx)mx=len[i]+i,p=i;
+	    cnt+=len[i]/2;///除以2是因为这里的字符串之间插入了‘#’
+	    for (int j=0;j<=25;j++){
+	    	if (num[j]>=i-len[i]){
+	    		ans+=1LL*(num[j]-i+len[i]+1)/2;
+	    	}
+	    }
+	   // printf("%lld\n",ans);
+	}
+	printf("%lld",ans);
+	return 0;
+}

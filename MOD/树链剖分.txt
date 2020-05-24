@@ -1,0 +1,106 @@
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<cmath>
+#include<algorithm>
+#define N 100005
+typedef long long LL;
+int fa[N],top[N],siz[N],size,son[N],pos[N],n,m,deep[N];
+int tou[N],dd;
+LL tree[N*4];
+int sc[N];
+LL ans[N];
+struct bian{
+	int u,v;
+	LL len;
+	int q;
+}line[N*2],ask[N*2];
+struct aa{
+    int p,next;
+}da[N*2];
+void dfs(int x){
+    for (int i=tou[x];i;i=da[i].next){
+        int v=da[i].p;
+        if (v!=fa[x]){
+            fa[v]=x;
+            deep[v]=deep[x]+1;
+            dfs(v);
+            siz[x]+=siz[v];
+            if (siz[v]>siz[son[x]])son[x]=v;
+        }
+    }
+    siz[x]+=1;
+}
+void dfs1(int x,int tp){
+    pos[x]=++size;top[x]=tp;
+    if (son[x])dfs1(son[x],tp);
+    for (int i=tou[x];i;i=da[i].next){
+        int v=da[i].p;
+        if (v!=fa[x]&&v!=son[x])dfs1(v,v);
+    }
+}
+void add(int x,int y){
+    da[++dd].p=y;da[dd].next=tou[x];tou[x]=dd;
+}
+void clac(int x){
+    tree[x]=tree[x*2]+tree[x*2+1];
+}
+void ins(int x,int l,int r,int xx,LL v){
+    if (l==r){
+        tree[x]=v;
+        return;
+    }
+    int mid=(l+r)/2;
+    if (xx<=mid)ins(x*2,l,mid,xx,v);
+    if (mid<xx)ins(x*2+1,mid+1,r,xx,v);
+    clac(x);
+}
+LL query(int x,int l,int r,int ls,int rs){
+    if (l==r)return tree[x];
+    if (ls<=l&&r<=rs)return tree[x];
+    int mid=(l+r)/2;
+    LL mm=0;
+    if (ls<=mid)mm+=query(x*2,l,mid,ls,rs);
+    if (mid<rs)mm+=query(x*2+1,mid+1,r,ls,rs);
+    return mm;
+}
+LL  work(int x,int y){
+    LL mm=0;
+    for (;top[x]!=top[y];x=fa[top[x]]){
+        if (deep[top[x]]<deep[top[y]])std::swap(x,y);
+        mm+=query(1,1,n,pos[top[x]],pos[x]);
+    }
+    if (pos[x]>pos[y])std::swap(x,y);
+    if (pos[x]+1<=pos[y]){
+        mm+=query(1,1,n,pos[x]+1,pos[y]);
+    }
+    return mm;
+}
+inline bool cmp(const bian &a,const bian &b){return a.len<b.len;}
+int main(){
+    scanf("%d%d",&n,&m);
+    for (int i=1;i<=n-1;i++){
+    	scanf("%d%d%lld",&line[i].u,&line[i].v,&line[i].len);
+    	add(line[i].u,line[i].v);
+    	add(line[i].v,line[i].u);
+    }
+    dfs(1);
+    dfs1(1,1);
+    std::sort(line+1,line+n,cmp);
+    for (int i=1;i<=m;i++){
+    	scanf("%d%d%lld",&ask[i].u,&ask[i].v,&ask[i].len);
+    	ask[i].q=i;
+    }
+    std::sort(ask+1,ask+m+1,cmp);
+    int top=1;
+    for (int i=1;i<=m;i++){
+    	while (line[top].len<=ask[i].len&&top<=n){
+    		if (pos[line[top].u]<pos[line[top].v])ins(1,1,n,pos[line[top].v],1);
+    		else ins(1,1,n,pos[line[top].u],1);
+    		top++;
+    	}
+    	ans[ask[i].q]=work(ask[i].u,ask[i].v);
+    }
+    for (int i=1;i<=m;i++)printf("%lld\n",ans[i]);
+    return 0;
+}

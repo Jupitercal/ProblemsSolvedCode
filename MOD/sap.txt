@@ -1,0 +1,19 @@
+int sap(int x,int delta){
+	if (x==tail) return delta;
+	int mindis=tail+1,sum=0;
+	for (int i=tou[x];i;i=da[i].next){
+		if (da[i].f>0 && dist[x]==dist[da[i].p]+1){
+			int save=sap(da[i].p,std::min(da[i].f,delta-sum));
+			sum+=save;
+			da[i].f-=save;
+			da[da[i].op].f+=save;
+			if (dist[start]>=tail || sum==delta) return sum;
+		}
+      if (da[i].f>0)  mindis=std::min(mindis,dist[da[i].p]);
+	}
+	if (sum==0){
+		if (--cnt[dist[x]]==0) dist[start]=tail+1;
+		 else ++cnt[dist[x]=mindis+1];
+	}
+	return sum;
+}

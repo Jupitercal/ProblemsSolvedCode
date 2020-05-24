@@ -1,0 +1,50 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+ll  n, m, p;
+ll Ext_gcd(ll a, ll b, ll &x, ll &y) 
+{
+	if (b == 0) { x = 1, y = 0; return a; }
+	ll ret = Ext_gcd(b, a%b, y, x);
+	y -= a / b * x;
+	return ret;
+}
+ll Inv(ll a, int m) 
+{   
+	ll d, x, y, t = (ll)m;
+	d = Ext_gcd(a, t, x, y);
+	if (d == 1) return (x%t + t) % t;
+	return -1;
+}
+ 
+ll Cm(ll n, ll m, ll p)  
+{
+	ll a = 1, b = 1;
+	if (m > n) return 0;
+	while (m)
+	{
+		a = (a*n) % p;
+		b = (b*m) % p;
+		m--;
+		n--;
+	}
+	return (ll)a*Inv(b, p) % p;  
+}
+ 
+int Lucas(ll n, ll m, ll p)  
+{
+	if (m == 0) return 1;
+	return (ll)Cm(n%p, m%p, p)*(ll)Lucas(n / p, m / p, p) % p;
+}
+ 
+int main()
+{
+	int  T;
+	cin >> T;
+	while (T--)
+	{
+		scanf("%lld%lld%lld", &n, &m, &p);
+		printf("%d\n", Lucas(n + m, m, p));
+	}
+	return 0;
+}

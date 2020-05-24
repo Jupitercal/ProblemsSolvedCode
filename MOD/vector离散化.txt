@@ -1,0 +1,4 @@
+std::sort(vec.begin(),vec.end());
+vec.resize(unique(vec.begin(),vec.end())-vec.begin());
+nn=(int)vec.size();
+x=lower_bound(vec.begin(),vec.end(),poi[i].x)-vec.begin()+1;

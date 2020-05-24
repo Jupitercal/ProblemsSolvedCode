@@ -1,0 +1,35 @@
+void dit(int x){
+	while (stack[tail]!=x)f[stack[tail]]=0,--tail;
+	--tail;
+}
+void dfs(int x){//有向图，无向图要记录来的点
+	dfn[x]=low[x]=++sz;v[x]=f[x]=1;
+	stack[++tail]=x;
+	int son=0;
+	for (int i=tou[x];i;i=da[i].next){
+		int vi=da[i].p;
+		if (!v[vi]){
+			dfs(vi);
+			++son;
+			if ((son>1&&x==root)||(x!=root&&dfn[x]<=low[vi]))++B[x],F=1;//割点
+// if(low[input[e].to]>dfn[now])cout<<now<<"->"<<input[e].to<<endl; 割边
+			low[x]=std::min(low[x],low[vi]);
+		}else if (f[vi])low[x]=std::min(low[x],dfn[vi]);
+	}
+	if (low[x]==dfn[x])dit(x);
+}
+
+2-sat模式
+模型一：两者（A，B）不能同时取
+　　那么选择了A就只能选择B’，选择了B就只能选择A’
+　　连边A→B’，B→A’
+
+模型二：两者（A，B）不能同时不取
+　　那么选择了A’就只能选择B，选择了B’就只能选择A
+　　连边A’→B，B’→A
+
+模型三：两者（A，B）要么都取，要么都不取
+　　那么选择了A，就只能选择B，选择了B就只能选择A，选择了A’就只能选择B’，选择了B’就只能选择A’
+　　连边A→B，B→A，A’→B’，B’→A’
+
+模型四：两者（A，A’）必取A

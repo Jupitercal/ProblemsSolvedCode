@@ -1,0 +1,95 @@
+#include<bits/stdc++.h>
+typedef long long LL;
+#define N 400005
+std::unordered_map<LL,int>mp;
+LL tree[N*8],x[N*2],a2,b2,a1,b1,c1,c2,m1,m2;
+LL tag[N*8],L[N*2];
+int n,p;
+struct aa{
+    LL l,r;
+}poi[N];
+void clac(int x,int l,int r){
+    tree[x]=tree[x*2]+tree[x*2+1];
+//  sum[x]=sum[x*2]+sum[x*2+1];
+}
+void down(int x,int l,int r){
+    if (tag[x]){
+        int mid=(l+r)/2;
+        tag[x*2]+=tag[x];
+        tag[x*2+1]+=tag[x];
+        tree[x*2]+=tag[x]*(L[mid+1]-L[l]);
+        tree[x*2+1]+=tag[x]*(L[r+1]-L[mid+1]);
+        tag[x]=0;
+    }
+}
+void insert(int x,int l,int r,int ls,int rs,LL v){
+    if (l>r)return ;
+    if (l==r){
+        tree[x]+=v*(L[l+1]-L[l]);
+        tag[x]+=v;
+        return;
+    }
+    down(x,l,r);
+    if (ls<=l&&r<=rs){
+        tree[x]+=v*(L[r+1]-L[l]);
+        tag[x]+=v;
+        return;
+    }
+    int mid=(l+r)/2;
+    if (ls<=mid)insert(x*2,l,mid,ls,rs,v);
+    if (mid<rs)insert(x*2+1,mid+1,r,ls,rs,v);
+    clac(x,l,r);
+}
+LL query(int rt,int l,int r,LL k){
+    if(l==r){
+        LL tmp=tree[rt]/(L[l+1]-L[l]);
+        LL ans=k/tmp;
+        if(k%tmp) ans++;
+        ans+=L[l]-1;
+        return ans;
+    }
+    int mid=(l+r)>>1;
+    down(rt,l,r);
+    if(tree[rt<<1]>=k) return query(rt<<1,l,mid,k);
+    else return query(rt<<1|1,mid+1,r,k-tree[rt<<1]);
+}
+int main(){
+    #ifndef ONLINE_JUDGE
+    freopen("test.in","r",stdin);
+    freopen("test.out","w",stdout);
+    #endif
+    scanf("%d",&n);
+    scanf("%lld%lld%lld%lld%lld%lld",&poi[1].l,&poi[2].l,&a1,&b1,&c1,&m1);
+    scanf("%lld%lld%lld%lld%lld%lld",&poi[1].r,&poi[2].r,&a2,&b2,&c2,&m2);
+    for (int i=3;i<=n;i++){
+        poi[i].l=(a1*poi[i-1].l+b1*poi[i-2].l+c1)%m1;
+        poi[i].r=(a2*poi[i-1].r+b2*poi[i-2].r+c2)%m2;
+    }
+    for (int i=1;i<=n;i++){
+        if (poi[i].l>poi[i].r)std::swap(poi[i].l,poi[i].r);
+        poi[i].l++;
+        poi[i].r++;
+        poi[i].r++;
+        x[(i-1)*2+1]=poi[i].l;
+        x[i*2]=poi[i].r;
+    }
+    std::sort(x+1,x+n*2+1);
+    mp.clear();
+    p=0;
+    x[0]=-9498583;
+    for (int i=1;i<=2*n;i++){
+        if (x[i]!=x[i-1]){
+            p++;
+            //num[p-1]=x[i]-x[i-1];
+            L[p]=x[i];
+        }
+        mp[x[i]]=p;
+    }
+    for (int i=1;i<=n;i++){
+        int l=mp[poi[i].l],r=mp[poi[i].r]-1;
+        insert(1,1,p-1,l,r,1);
+        LL xi=(tree[1]+1)/2;
+        printf("%lld\n",query(1,1,p-1,xi));
+    }
+    return 0;
+}

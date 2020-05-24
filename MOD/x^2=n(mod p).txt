@@ -1,0 +1,71 @@
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+ll w,a,n,p;
+struct CN
+{
+    ll x,y;
+    CN operator * (const CN &a)const
+    {
+        CN z;
+        z.x=(x*a.x%p+y*a.y%p*w%p)%p;
+        z.y=(x*a.y%p+y*a.x%p)%p;
+        return z;
+    }
+}u;
+ll qsm(ll x,ll y)
+{
+    ll ans=1;
+    while(y)
+    {
+        if(y&1)ans=ans*x%p;
+        x=x*x%p;y>>=1;
+    }
+    return ans;
+}
+CN Cqsm(CN x,ll y)
+{
+    CN z;z.x=1;z.y=0;
+    while(y)
+    {
+        if(y&1)z=z*x;
+        x=x*x;y>>=1;
+    }
+    return z;
+}
+int main()
+{
+     int T;
+    scanf("%d",&T);
+    while(T--)
+    {
+        scanf("%lld%lld",&n,&p);
+        n%=p;
+        if(p==2)
+        {
+            printf("1\n");
+            continue;
+        }
+        if(qsm(n,(p-1)/2)==p-1){
+            puts("No root");
+            continue;
+        }
+        while(1)
+        {
+            a=rand()%p;
+            w=(a*a%p-n+p)%p;
+            if(qsm(w,(p-1)/2)==p-1)break;
+        }
+        u.x=a;u.y=1;
+        u=Cqsm(u,(p+1)/2);
+        ll ans1=u.x,ans2=p-ans1;
+        if(ans1>ans2)swap(ans1,ans2);
+        if(ans1==ans2){
+            printf("%lld\n",ans1);
+        }
+        else{
+            printf("%lld %lld\n",ans1,ans2);
+        }
+    }
+    return 0;
+}

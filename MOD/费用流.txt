@@ -1,0 +1,120 @@
+#include<bits/stdc++.h>
+#define pb push_back
+#define mk make_pair
+#define ll long long
+#define db double
+
+using namespace std;
+
+inline int read()
+{
+   int x=0,f=1;char ch=getchar();
+   while (!isdigit(ch)){if (ch=='-') f=-1;ch=getchar();}
+   while (isdigit(ch)){x=(x<<1)+(x<<3)+ch-'0';ch=getchar();}
+   return x*f;
+}
+
+const int maxn = 4010;
+const int maxm = 3e6+1e2;
+const double eps = 1e-10;
+
+int point[maxn],nxt[maxm],to[maxm],pre[maxm],from[maxn];
+double dis[maxn];
+int vis[maxn];
+double cost[maxm];
+int flow[maxm];
+double ans;
+int n,m,cnt=1;
+int s,t;
+
+void addedge(int x,int y,db w,int f)
+{
+    nxt[++cnt]=point[x];
+    pre[cnt]=x;
+    to[cnt]=y;
+    cost[cnt]=w;
+    flow[cnt]=f;
+    point[x]=cnt;
+}
+
+void insert(int x,int y,db w,int f)
+{
+    addedge(x,y,w,f);
+    addedge(y,x,-w,0);
+}
+
+queue<int> q;
+
+bool spfa(int s)
+{
+    for (int i=1;i<=maxn-3;i++) dis[i]=-1e9;
+    memset(vis,0,sizeof(vis));
+    q.push(s);
+    dis[s]=0;
+    while (!q.empty())
+    {
+        int x = q.front();
+        q.pop();
+        vis[x]=0;
+        for (int i=point[x];i;i=nxt[i])
+        {
+            int p = to[i];
+            if (dis[p]-(dis[x]+cost[i])<-eps && flow[i]>0)
+            {
+                from[p]=i;
+                dis[p]=dis[x]+cost[i];
+                if (!vis[p])
+                {
+                    q.push(p);
+                    vis[p]=1;
+                }
+            }
+        }
+    }
+    if (dis[t]==-1e9) return false;
+    return true;
+}
+
+void mcf()
+{
+    double x = 1e9;
+    for (int i=from[t];i;i=from[pre[i]]) x=min(x,1.0*flow[i]);
+    for (int i=from[t];i;i=from[pre[i]])
+    {
+        flow[i]-=x;
+        flow[i^1]+=x;
+        ans+=x*cost[i];
+    }
+}
+
+void solve()
+{
+    while (spfa(s)) mcf();
+}
+
+db a[maxn],b[maxn];
+int ss,sss;
+int aa,bb;
+
+int main()
+{
+   n=read(),aa=read(),bb=read();
+   s=maxn-10;
+   ss=s+1;
+   t=s+3;
+   sss=ss+1;
+   insert(s,ss,0,aa);
+   insert(s,sss,0,bb);
+   for (int i=1;i<=n;i++) scanf("%lf",&a[i]);
+   for (int i=1;i<=n;i++) scanf("%lf",&b[i]);
+   for (int i=1;i<=n;i++)
+   {
+   	  insert(ss,i,a[i],1);
+   	  insert(sss,i,b[i],1);
+   	  insert(i,t,0,1);
+   	  insert(i,t,-a[i]*b[i],1);
+   }
+   solve();
+   printf("%.4lf\n",ans);
+   return 0;
+}

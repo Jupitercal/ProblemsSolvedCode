@@ -1,0 +1,55 @@
+// luogu-judger-enable-o2
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+#define mod 1000000007
+using namespace std;
+typedef unsigned long long ull;
+typedef long long ll;
+unsigned long long SA,SB,SC;
+void init(){scanf("%llu%llu%llu",&SA,&SB,&SC);}
+unsigned long long r()
+{
+        SA^=SA<<32,SA^=SA>>13,SA^=SA<<1;
+        unsigned long long t=SA;
+        SA=SB,SB=SC,SC^=t^SA;return SC%(mod-1);
+}
+ull a[5][5][35000],b[5][5][35000],ans[5][5],tmp[5][5];
+
+int main()
+{
+    //freopen("w.txt","r",stdin);
+    a[1][1][0]=1;
+    a[1][2][0]=a[2][1][0]=0;
+    a[2][2][0]=1;
+    a[1][1][1]=233;
+    a[1][2][1]=666;
+    a[2][1][1]=1;
+    a[2][2][1]=0;
+    for(register int g=2;g<=32000;++g)
+        for(register int i=1;i<=2;++i)
+            for(register int k=1;k<=2;++k)
+                for(register int j=1;j<=2;++j)
+                    a[i][j][g]=(a[i][j][g]+(a[i][k][g-1]*a[k][j][1])%mod)%mod;
+    b[1][1][0]=b[2][2][0]=1;        
+    b[1][1][1]=a[1][1][32000];
+    b[1][2][1]=a[1][2][32000];
+    b[2][1][1]=a[2][1][32000];
+    b[2][2][1]=a[2][2][32000];
+    for(register int g=2;g<=32000;++g)
+        for(register int i=1;i<=2;++i)
+            for(register int k=1;k<=2;++k)
+                for(register int j=1;j<=2;++j)
+                    b[i][j][g]=(b[i][j][g]+(b[i][k][g-1]*b[k][j][1])%mod)%mod;
+    ull t;
+    scanf("%llu",&t);
+    init();
+    int tot=0;
+    for(register int g=1;g<=t;++g)
+    {
+        int q=r()-1;
+        if(q==-1) continue;
+        tot^=((a[1][1][q%32000]*b[1][1][q/32000])%mod+(a[1][2][q%32000]*b[2][1][q/32000])%mod)%mod;
+    }
+    printf("%llu",tot);
+} 

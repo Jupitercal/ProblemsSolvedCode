@@ -1,0 +1,22 @@
+void dfs(int u, int eid) {
+        // assert(u >= 1 && u <= n);
+        // printf("%d\n", u);
+        dfn[u] = low[u] = ++tot;
+        st[++top] = u; vis[u] = 1;
+        for (int i = head[u]; i; i = f[i].nxt) {
+            int v = f[i].to, id = f[i].id;
+            if (id == eid) continue;
+            if (!dfn[v]) {
+                dfs(v, id);
+                low[u] = min(low[u], low[v]);
+            } else if (vis[v]) low[u] = min(low[u], dfn[v]);
+        }
+        if (dfn[u] == low[u]) {
+            cnt++; int t = 0;
+            do {
+                t = st[top--];
+                bel[t] = cnt;
+                vis[t] = 0;
+            } while (t != u);
+        }
+    }

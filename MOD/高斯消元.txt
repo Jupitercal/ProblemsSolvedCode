@@ -1,0 +1,64 @@
+void guass(){
+	for(int i=1;i< n;i++){ //n-1次，n个未知量 
+		int maxi=i;
+		for(int j=i+1;j<=n;j++)
+			if(abs(f[j][i])>abs(f[maxi][i])) maxi=j;
+		if(abs(f[maxi][i])>EPS){
+			for(int j=1;j<=n+1;j++) std::swap(f[maxi][j],f[i][j]);
+			for(int j=i+1;j<=n;j++)
+				if(abs(f[j][i])>EPS){
+					double gs = -f[j][i]/f[i][i];  
+               		for (int k=i;k<=n+1; ++k)  
+                		f[j][k]+=f[i][k]*gs;  
+				}
+		}
+	}
+	for(int i=n;i;i--){
+		double db=f[i][n+1];
+		for(int j=i+1;j<=n;j++)
+			db-=ans[j]*f[i][j];
+		ans[i]=db/f[i][i];
+	}	
+}
+//x1+x2+..+xn+c=0;
+
+
+
+//带模数,常数在右边
+
+ll ksm(ll x,int y)
+{
+    if(!y) return 1;
+    ll ret=ksm(x,y>>1);
+    if(y&1) return ret*ret%p*x%p;
+    return ret*ret%p;
+}
+void Gauss(int n)
+{
+    for(int i=1;i<=n;i++)
+    {
+        if(!a[i][i])//主元不能为0
+        {
+            int maxi=0;
+            for(int j=i+1;j<=n&&!maxi;j++)
+                if(a[j][i]) maxi=j;
+            if(!maxi) continue;//如果一整列都为0，不需要消元
+            for(int j=i;j<=n+1;j++){
+                ll tmp=a[maxi][j];a[maxi][j]=a[i][j];a[i][j]=tmp;
+            }
+        }
+        for(int j=i+1;j<=n;j++)
+        {
+            ll tmp=a[j][i];
+            if(!tmp) continue;//已经为0，不需要消元
+            for(int k=i;k<=n+1;k++)
+                a[j][k]=((a[j][k]*a[i][i]-a[i][k]*tmp)%p+p)%p;
+        }
+    }
+    for(int i=n;i;i--)
+    {
+        for(int j=i+1;j<=n;j++)
+            a[i][n+1]=((a[i][n+1]-ans[j]*a[i][j])%p+p)%p;
+        ans[i]=a[i][n+1]*ksm(a[i][i],p-2)%p;
+    }
+}
