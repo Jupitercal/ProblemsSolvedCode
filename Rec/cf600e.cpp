@@ -1,0 +1,90 @@
+#include<bits/stdc++.h>
+#define N 200005
+typedef long long LL;
+int T,lc[N*20],rc[N*20],rt[N*20],sum[N*20];
+int n,tou[N],dd;
+LL num[N*20],ans[N];
+struct aa{
+    int p,next;
+}da[N*2];
+void add(int x,int y){
+    da[++dd].p=y;da[dd].next=tou[x];tou[x]=dd;
+}
+void clac(int x){
+    if (sum[lc[x]]==sum[rc[x]]){
+        sum[x]=sum[lc[x]];
+        num[x]=num[lc[x]]+num[rc[x]];
+    }else{
+        if (sum[lc[x]]>sum[rc[x]]){
+            sum[x]=sum[lc[x]];
+            num[x]=num[lc[x]];
+        }else{
+            sum[x]=sum[rc[x]];
+            num[x]=num[rc[x]];
+        }
+    }
+}
+void insert(int &i, int l, int r, int x){
+    if(r<l) return ;
+    i = ++T;
+    if(l == r) {
+        sum[i]++ ;
+        num[i]=1LL*x;
+        return ;
+    }
+    int mid = (l + r)/2 ;
+    if(x<=mid) insert(lc[i], l, mid, x) ;
+    if(x>mid) insert(rc[i], mid + 1, r, x) ;
+    clac(i);
+}
+int merge(int x, int y,int l,int r) {
+    if(!x) return y;
+    if(!y) return x;
+    //tree[x] += tree[y] ;
+    //printf("%d %d\n",l,r);
+    if (l>r)return 0;
+    if (l==r){
+        num[x]=1LL*l;
+        sum[x]+=sum[y];
+        //printf("%d %lld\n",sum[x],num[x]);
+        return x;
+    }
+    int mid=(l+r)/2;
+    lc[x] = merge(lc[x], lc[y],l , mid) ;
+    rc[x] = merge(rc[x], rc[y],mid+1,r) ;
+    //tree[x] = tree[lc[x]] + tree[rc[x]] ;
+    clac(x);
+    return x;
+}
+void dfs(int x,int fa){
+    for (int i=tou[x];i;i=da[i].next){
+        int v=da[i].p;
+        if (v==fa)continue;
+       // printf("%d %d\n",x,v);
+        dfs(v,x);
+        rt[x]=merge(rt[x],rt[v],1,n);
+    }
+    ans[x]=num[rt[x]];
+}
+int main(){
+    #ifndef ONLINE_JUDGE
+    freopen("test.in","r",stdin);
+    freopen("test.out","w",stdout);
+    #endif
+    scanf("%d",&n);
+    for (int i=1;i<=n;i++){
+        int x;
+        scanf("%d",&x);
+        insert(rt[i],1,n,x);
+    }
+    for (int i=1;i<n;i++){
+        int x,y;
+        scanf("%d%d",&x,&y);
+        add(x,y);
+        add(y,x);
+    }
+   // rt[3]=merge(rt[3],rt[5],1,n);
+    dfs(1,1);
+    for (int i=1;i<=n;i++)printf("%lld ",ans[i]);
+    return 0;
+}
